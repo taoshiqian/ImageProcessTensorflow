@@ -26,3 +26,8 @@ bias = tf.nn.bias_add(conv, biases)
 
 # 激活函数得到最终结果
 actived_conv = tf.nn.relu(bias)
+
+# max pooling
+pool = tf.nn.max_pool(actived_conv,
+                      ksize=[1,3,3,1],strides=[1,2,2,1]
+                      ,padding='SAME')
