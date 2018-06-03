@@ -31,7 +31,8 @@ def inference(input_tensor, train, regularizer):
             initializer=tf.truncated_normal_initializer(stddev=0.1)
         )
         conv1_biases = tf.get_variable(
-            'biases', [CONV1_DEEP], initializer=tf.constant_initializer(0.0)
+            'bias', [CONV1_DEEP],
+            initializer=tf.constant_initializer(0.0)
         )
         conv1 = tf.nn.conv2d(input_tensor, conv1_weights, strides=[1, 1, 1, 1], padding='SAME')
         relu1 = tf.nn.relu(tf.nn.bias_add(conv1, conv1_biases))
@@ -63,11 +64,10 @@ def inference(input_tensor, train, regularizer):
         pool2 = tf.nn.max_pool(
             relu2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME'
         )
-
-    # 把7*7*64拉成一个向量。0：batch数据个数，1：长度，2：宽度，3：深度
-    pool_shape = pool2.get_shape().as_list()
-    nodes = pool_shape[1] * pool_shape[2] * pool_shape[3]
-    reshaped = tf.reshape(pool2, [pool_shape[0], nodes])
+        # 把7*7*64拉成一个向量。0：batch数据个数，1：长度，2：宽度，3：深度
+        pool_shape = pool2.get_shape().as_list()
+        nodes = pool_shape[1] * pool_shape[2] * pool_shape[3]
+        reshaped = tf.reshape(pool2, [pool_shape[0], nodes])
 
     # 5.全连接1 + relu （dropout一般只在全连接层使用，而不在卷积层或者池化层使用；只有全连接层的权重需要加入正则化项）
     # 3136 -> 512
