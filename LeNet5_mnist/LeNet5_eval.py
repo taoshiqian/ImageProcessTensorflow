@@ -9,21 +9,30 @@ from LeNet5_mnist import LeNet5_train
 
 # 每10秒加载一次模型，并在最新模型上测试准确率
 EVAL_INTERVAL_SECS = 10
-
+BATCH_SIZE = 100
 
 def evaluate(mnist):
     with tf.Graph().as_default() as g:
         # 定义输入输出的格式
         x = tf.placeholder(
             tf.float32,
-            [None, LeNet5_inference.IMAGE_SIZE, LeNet5_inference.IMAGE_SIZE, LeNet5_inference.NUM_CHANNELS],
+            [BATCH_SIZE, LeNet5_inference.IMAGE_SIZE, LeNet5_inference.IMAGE_SIZE, LeNet5_inference.NUM_CHANNELS],
             name='x-input'
         )
         y_ = tf.placeholder(tf.float32, [None, LeNet5_inference.OUTPUT_NODE], name='y-input')
         #reshaped_x = np.reshape(mnist.validation.images,(None, LeNet5_inference.IMAGE_SIZE, LeNet5_inference.IMAGE_SIZE, LeNet5_inference.NUM_CHANNELS))
+
+        xs, ys = mnist.validation.next_batch(BATCH_SIZE)
+
+        reshaped_xs = np.reshape(xs, (
+            BATCH_SIZE,
+            LeNet5_inference.IMAGE_SIZE,
+            LeNet5_inference.IMAGE_SIZE,
+            LeNet5_inference.NUM_CHANNELS))
+
         validate_feed = {
-            x: mnist.validation.images,
-            y_: mnist.validation.labels
+            x: reshaped_xs,
+            y_: ys
         }
 
         # 直接调用inference的网络，不需要正则化项
@@ -34,7 +43,7 @@ def evaluate(mnist):
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
         # 通过变量重命名的方式来加载模型。
-        variable_average = tf.train.ExponentialMovingAverage(mnist_train.MOVING_AVERAGE_DECAY)
+        variable_average = tf.train.ExponentialMovingAverage(LeNet5_train.MOVING_AVERAGE_DECAY)
         variable_to_restore = variable_average.variables_to_restore()
         saver = tf.train.Saver(variable_to_restore)
 
@@ -42,7 +51,7 @@ def evaluate(mnist):
         while True:
             with tf.Session() as sess:
                 # get_checkpoint_state通过checkpoint文件自动找到目录中最新模型的文件名
-                ckpt = tf.train.get_checkpoint_state(mnist_train.MODEL_SAVE_PATH)
+                ckpt = tf.train.get_checkpoint_state(LeNet5_train.MODEL_SAVE_PATH)
                 if ckpt and ckpt.model_checkpoint_path:
                     # 加载模型
                     saver.restore(sess, ckpt.model_checkpoint_path)
