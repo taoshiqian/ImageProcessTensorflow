@@ -1,6 +1,9 @@
 .idea
-mnist/mnist_data/*
-mnist/model/*
+LeNet5_mnist/mnist_data/*
+LeNet5_mnist/model/*
+finetuning/flower_photos/*
+finetuning/flower_photos.tgz
+finetuning/inception_dec_2015.zip
 
 # Created by https://www.gitignore.io/api/pycharm,visualstudiocode
 
