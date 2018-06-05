@@ -1,7 +1,7 @@
 # -*-coding:utf-8-*-
 
 
-import glob # 用它可以查找符合特定规则的文件路径名
+import glob  # 用它可以查找符合特定规则的文件路径名
 import os.path
 import numpy as np
 import tensorflow as tf
@@ -16,7 +16,6 @@ OUTPUT_FILE = 'flower_processed_data.npy'
 # 测试数据和验证数据比例。 10% 10%
 VALIDATION_PERCENTAGE = 10
 TEST_PERCENTAGE = 10
-
 
 
 # 读取数据并将数据分割成训练数据、验证数据、测试数据
@@ -94,7 +93,8 @@ def main():
     with tf.Session() as sess:
         processed_data = create_image_lists(sess, TEST_PERCENTAGE, VALIDATION_PERCENTAGE)
         # 通过numpy格式保存处理后的数据。
-        np.save(OUTPUT_FILE, processed_data)
+        np.save(OUTPUT_FILE, processed_data)  # 会爆内存
+
 
 if __name__ == '__main__':
     main()
