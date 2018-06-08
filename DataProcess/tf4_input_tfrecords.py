@@ -25,6 +25,39 @@ def produce():
             writer.write(example.SerializeToString())
         writer.close()
 
+
+# 2. 读取文件。
+def readData():
+    # 正则获取文件列表
+    files = tf.train.match_filenames_once("data.tfrecords-*")
+    # 输入队列
+    filename_queue = tf.train.string_input_producer(files, shuffle=False)
+
+    # 如图7.1节中所示，读取并解析一个样本
+    reader = tf.TFRecordReader()
+    _, serialized_example = reader.read(filename_queue)
+    features = tf.parse_single_example(
+        serialized_example,
+        features={
+            'i': tf.FixedLenFeature([], tf.int64),
+            'j': tf.FixedLenFeature([], tf.int64),
+        })
+
+    with tf.Session() as sess:
+        tf.local_variables_initializer().run()
+        print(sess.run(files))
+
+        # 声明tf.train.Coordinator类来协同不同线程，并启动线程
+        coord = tf.train.Coordinator()
+        threads = tf.train.start_queue_runners(sess=sess, coord=coord)
+
+        # 多次执行获取数据的操作
+        for i in range(6):
+            print(sess.run([features['i'], features['j']]))
+        coord.request_stop()
+        coord.join()
+
+
 if __name__ == '__main__':
     # produce()
-    pass
+    readData()
