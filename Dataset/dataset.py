@@ -37,7 +37,7 @@ def test2_txt():
     input_files = ["./test1.txt", "./test2.txt"]
     dataset = tf.data.TextLineDataset(input_files)
 
-    #定义迭代器用于遍历数据集
+    # 定义迭代器用于遍历数据集
     iterator = dataset.make_one_shot_iterator()
 
     # 这里get_next()返回一个字符串类型的张量，代表文件中的一行。
@@ -47,23 +47,26 @@ def test2_txt():
         for i in range(4):
             print(sess.run(x))
 
+
+# 解析一个TFRecord的方法。# 解析一个T
+def parser(record):
+    features = tf.parse_single_example(
+        record,
+        features={
+            'image_raw': tf.FixedLenFeature([], tf.string),
+            'pixels': tf.FixedLenFeature([], tf.int64),
+            'label': tf.FixedLenFeature([], tf.int64)
+        })
+    decoded_images = tf.decode_raw(features['image_raw'], tf.uint8)
+    retyped_images = tf.cast(decoded_images, tf.float32)
+    images = tf.reshape(retyped_images, [784])
+    labels = tf.cast(features['label'], tf.int32)
+    # pixels = tf.cast(features['pixels'],tf.int32)
+    return images, labels
+
+
 # tfrecord到dataset
 def test3_tfrecord():
-    # 解析一个TFRecord的方法。# 解析一个T
-    def parser(record):
-        features = tf.parse_single_example(
-            record,
-            features={
-                'image_raw': tf.FixedLenFeature([], tf.string),
-                'pixels': tf.FixedLenFeature([], tf.int64),
-                'label': tf.FixedLenFeature([], tf.int64)
-            })
-        decoded_images = tf.decode_raw(features['image_raw'], tf.uint8)
-        retyped_images = tf.cast(decoded_images, tf.float32)
-        images = tf.reshape(retyped_images, [784])
-        labels = tf.cast(features['label'], tf.int32)
-        # pixels = tf.cast(features['pixels'],tf.int32)
-        return images, labels
     # 从TFRecord文件创建数据集
     input_files = ["output.tfrecords"]
     dataset = tf.data.TFRecordDataset(input_files)
@@ -78,6 +81,29 @@ def test3_tfrecord():
         for i in range(10):
             x, y = sess.run([image, label])
             print(y)
+
+
+# 使用initializable_iterator来动态初始化数据集。可以用placeholder
+def test4_initializable_iterator():
+    input_files = tf.placeholder(tf.string)
+    dataset = tf.data.TFRecordDataset(input_files)
+    dataset = dataset.map(parser)
+
+    # 定义遍历dataset的迭代器
+    iterator = dataset.make_initializable()
+    image, label = iterator.get_next()
+
+    with tf.Session() as sess:
+        # 初始化iterator，并给出input_file的值
+        sess.run(iterator.initializer,
+                 feed_dict={input_files:['output.tf.record']})
+        # 遍历
+        while True:
+            try:
+                x, y = sess.run([image, label])
+            except:
+                break
+
 
 if __name__ == '__main__':
     test3_tfrecord()
