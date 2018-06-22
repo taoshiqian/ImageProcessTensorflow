@@ -34,7 +34,7 @@ def train(mnist):
     regularizer = tf.contrib.layers.l2_regularizer(REGULARIZER_RATE)
     y = LeNet5_inference.inference(x, train=True,regularizer=regularizer)
 
-    # 定义训练轮数的变量，不可训练
+    # 定义训练轮数的变量，该变量不可训练
     global_step = tf.Variable(0, trainable=False)
 
     # 初始化滑动平均类
