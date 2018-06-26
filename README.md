@@ -22,3 +22,4 @@ DataProcess：batching：输入数据处理框架
 Dataset:dataset:tf中Dataset的使用\
 Dataset:dataset_example:使用Dataset的完整例子
 
+LeNet5_mnist_keras:利用keras的API编写LeNet5网络来做mnist的分类，可与文件夹LeNet5_mnist中的tensorflow代码一一对应，网络结构一致，代码简单很多
